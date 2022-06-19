@@ -1,11 +1,7 @@
-import React from 'react';
+import React from 'react'
 
 const App = () => {
-  return (
-    <div className="text-3xl font-bold underline">
-     Hello, Tailwind & GraphQL!
-    </div>
-  );
+  return <div className="text-3xl font-bold underline">Hello, Tailwind & GraphQL!</div>
 }
 
-export default App;
+export default App
