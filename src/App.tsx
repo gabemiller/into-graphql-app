@@ -1,9 +1,9 @@
 import React from 'react';
 
-function App() {
+const App = () => {
   return (
     <div className="text-3xl font-bold underline">
-     Hello, Tailwind!
+     Hello, Tailwind & GraphQL!
     </div>
   );
 }
