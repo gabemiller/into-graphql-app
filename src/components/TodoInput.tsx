@@ -9,7 +9,7 @@ type TodoInputProps = {
 const TodoInput: FunctionComponent<TodoInputProps> = ({ value, changeValue, handleAdd }) => {
   return (
     <input
-      className="w-full px-3 py-1 mb-4 border-2 border-slate-200 focus:border-blue-300 focus:outline-0"
+      className="w-full px-4 py-2 mb-4 border-2 border-slate-200 focus:border-sky-300 focus:outline-0"
       name="todo-item"
       type="text"
       value={value}
