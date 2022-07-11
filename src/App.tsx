@@ -1,3 +1,4 @@
+import { gql, useQuery } from '@apollo/client'
 import trim from 'lodash/trim'
 import { nanoid } from 'nanoid'
 import React, { useState } from 'react'
@@ -11,20 +12,27 @@ import { TodoItemStatus } from './interfaces/TodoItemStatus'
 const App = () => {
   const [value, setValue] = useState<string>('')
   const [todoList, setTodoList] = useState<TodoItem[]>([])
-  return (
-    <TodoContainer>
-      <TodoInput
-        value={value}
-        changeValue={(e) => setValue(e.currentTarget.value)}
-        handleAdd={(e) => {
-          if (e.key === 'Enter' && value.length > 0) {
-            setTodoList((state) => [...state, { id: nanoid(), value: trim(value), status: TodoItemStatus.IN_PROGRESS }])
-            setValue('')
-          }
-        }}
-      />
+
+  const { loading, error, data } = useQuery<{ items: TodoItem[] }>(gql`
+    query GetTodoItems {
+      items {
+        id
+        value
+        status
+      }
+    }
+  `)
+
+  let content
+
+  if (loading) {
+    content = 'loading'
+  } else if (error) {
+    content = 'error'
+  } else if (data && Array.isArray(data.items)) {
+    content = (
       <ul>
-        {todoList.map((item, index) => (
+        {data.items.map((item, index) => (
           <TodoListItem
             key={item.id}
             value={item.value}
@@ -48,6 +56,22 @@ const App = () => {
           />
         ))}
       </ul>
+    )
+  }
+
+  return (
+    <TodoContainer>
+      <TodoInput
+        value={value}
+        changeValue={(e) => setValue(e.currentTarget.value)}
+        handleAdd={(e) => {
+          if (e.key === 'Enter' && value.length > 0) {
+            setTodoList((state) => [...state, { id: nanoid(), value: trim(value), status: TodoItemStatus.IN_PROGRESS }])
+            setValue('')
+          }
+        }}
+      />
+      {content}
     </TodoContainer>
   )
 }
