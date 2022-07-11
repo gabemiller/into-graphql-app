@@ -8,8 +8,8 @@ import { className } from '../utils'
 type TodoListItemProps = {
   value: string
   status: TodoItemStatus
-  handleStatus: (e: React.MouseEvent) => void
-  handleRemove: (e: React.MouseEvent) => void
+  handleStatus: (e: React.MouseEvent) => Promise<void>
+  handleRemove: (e: React.MouseEvent) => Promise<void>
 }
 
 const TodoListItem: FunctionComponent<TodoListItemProps> = ({ value, status, handleStatus, handleRemove }) => {

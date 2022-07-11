@@ -1,5 +1,5 @@
-import { gql, useQuery } from '@apollo/client'
-import React, { useState } from 'react'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import React from 'react'
 
 import TodoContainer from './components/TodoContainer'
 import TodoInput from './components/TodoInput'
@@ -8,8 +8,6 @@ import { TodoItem } from './interfaces/TodoItem'
 import { TodoItemStatus } from './interfaces/TodoItemStatus'
 
 const App = () => {
-  const [todoList, setTodoList] = useState<TodoItem[]>([])
-
   const { loading, error, data } = useQuery<{ items: TodoItem[] }>(gql`
     query GetTodoItems {
       items {
@@ -20,6 +18,36 @@ const App = () => {
     }
   `)
 
+  const [deleteTodoItem] = useMutation<TodoItem>(
+    gql`
+      mutation DeleteTodoItem($id: String!) {
+        deleteTodoItem(id: $id) {
+          id
+          value
+          status
+        }
+      }
+    `,
+    {
+      refetchQueries: ['GetTodoItems'],
+    }
+  )
+
+  const [updateTodoItem] = useMutation<TodoItem>(
+    gql`
+      mutation UpdateTodoItem($id: String!, $status: TodoItemStatus!) {
+        updateTodoItem(id: $id, status: $status) {
+          id
+          value
+          status
+        }
+      }
+    `,
+    {
+      refetchQueries: ['GetTodoItems'],
+    }
+  )
+
   let content
 
   if (loading) {
@@ -29,25 +57,19 @@ const App = () => {
   } else if (data && Array.isArray(data.items)) {
     content = (
       <ul>
-        {data.items.map((item, index) => (
+        {data.items.map((item) => (
           <TodoListItem
             key={item.id}
             value={item.value}
             status={item.status}
-            handleRemove={(e) => {
+            handleRemove={async (e) => {
               e.preventDefault()
-              setTodoList((state) => state.filter((item, itemIndex) => index !== itemIndex))
+              await deleteTodoItem({ variables: { id: item.id } })
             }}
-            handleStatus={(e) => {
+            handleStatus={async (e) => {
               e.preventDefault()
-              setTodoList((state) => {
-                const tempState = [...state]
-                tempState.splice(index, 1, {
-                  id: item.id,
-                  value: item.value,
-                  status: item.status === TodoItemStatus.DONE ? TodoItemStatus.IN_PROGRESS : TodoItemStatus.DONE,
-                })
-                return tempState
+              await updateTodoItem({
+                variables: { id: item.id, status: item.status === TodoItemStatus.DONE ? TodoItemStatus.IN_PROGRESS : TodoItemStatus.DONE },
               })
             }}
           />
